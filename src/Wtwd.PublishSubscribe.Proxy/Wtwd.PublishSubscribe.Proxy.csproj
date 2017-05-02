@@ -7,8 +7,8 @@
     <ProjectGuid>{8252FF85-E76E-4D06-8CB1-A4E0ADD7EE27}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Wtwd.PublishSubscribe.Client</RootNamespace>
-    <AssemblyName>Wtwd.PublishSubscribe.Client</AssemblyName>
+    <RootNamespace>Wtwd.PublishSubscribe.Proxy</RootNamespace>
+    <AssemblyName>Wtwd.PublishSubscribe.Proxy</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -165,7 +165,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClientProxy.cs" />
+    <Compile Include="IPublishSubscribeHubProxy.cs" />
+    <Compile Include="PublishSubscribeHubProxy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

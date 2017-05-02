@@ -6,14 +6,14 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
 using Wtwd.PublishSubscribe.Model;
 
-namespace Wtwd.PublishSubscribe.Client
+namespace Wtwd.PublishSubscribe.Proxy
 {
     // https://github.com/aspnet/SignalR
 
-    public class ClientProxy
+    public class PublishSubscribeHubProxy : IPublishSubscribeHubProxy
     {
         private Uri _hubUrl;
-        private readonly ILogger<ClientProxy> _logger;
+        private readonly ILogger<PublishSubscribeHubProxy> _logger;
 
         private readonly HubConnection _hubConnection;
         private readonly CancellationTokenSource _cancellationTokenSource;
@@ -24,7 +24,7 @@ namespace Wtwd.PublishSubscribe.Client
         private static string _methodSubscribeName = "SubscribeAsync";
         private static string _methodUnsubscribeName = "UnsubscribeAsync";
 
-        public ClientProxy(Uri serverUrl, ILogger<ClientProxy> logger)
+        public PublishSubscribeHubProxy(Uri serverUrl, ILogger<PublishSubscribeHubProxy> logger)
         {
             _hubUrl = new Uri(serverUrl, _hubPath);
             _logger = logger;
@@ -35,7 +35,7 @@ namespace Wtwd.PublishSubscribe.Client
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
-        public async Task Connect()
+        public async Task ConnectAsync()
         {            
             try
             {
@@ -70,14 +70,14 @@ namespace Wtwd.PublishSubscribe.Client
             await _hubConnection.DisposeAsync();
         }
 
-        public async Task Send<T>(string topic, T messageContent)
+        public async Task SendAsync<T>(string topic, T content)
         {            
             try
             {
-                var message = new MessageWithTopic()
+                var message = new Message()
                 {
                     Topic = topic,
-                    Message = Newtonsoft.Json.JsonConvert.SerializeObject(messageContent)
+                    Content = Newtonsoft.Json.JsonConvert.SerializeObject(content)
                 };
 
                 await _hubConnection.Invoke<object>(_methodSendMessageName, _cancellationTokenSource.Token, message);
@@ -94,7 +94,7 @@ namespace Wtwd.PublishSubscribe.Client
             }
         }
 
-        public async Task Subscribe(string topic)
+        public async Task SubscribeAsync(string topic)
         {
             try
             {
@@ -112,7 +112,7 @@ namespace Wtwd.PublishSubscribe.Client
             }            
         }
 
-        public async Task UnSubscribe(string topic)
+        public async Task UnSubscribeAsync(string topic)
         {
             try
             {

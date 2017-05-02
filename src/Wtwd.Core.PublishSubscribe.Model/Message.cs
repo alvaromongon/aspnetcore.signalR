@@ -1,6 +1,6 @@
-﻿namespace Wtwd.PublishSubscribe.Model
+﻿namespace Wtwd.Core.PublishSubscribe.Model
 {
-    public class MessageWithTopic
+    public class Message
     {
         /// <summary>
         /// Message topic
@@ -8,8 +8,8 @@
         public string Topic { get; set; }
 
         /// <summary>
-        /// Json serialized message
+        /// Json serialized content
         /// </summary>
-        public string Message { get; set; }
+        public string Content { get; set; }
     }
 }
