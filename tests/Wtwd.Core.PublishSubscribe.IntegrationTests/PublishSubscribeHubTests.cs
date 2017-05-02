@@ -40,38 +40,50 @@ namespace Wtwd.Core.PublishSubscribe.IntegrationTests
         [Fact]
         public async Task WhenClientConnect_ThenCanSubscribeAndUnSubscribe()
         {
-            //using (var httpClient = _testServer.CreateClient())
-            //{
-            //    var connection = new HubConnection(new Uri("http://test/PublishSubscribe"));
-            //    try
-            //    {
-            //        await connection.StartAsync(TransportType.LongPolling, httpClient);
-
-            //        var result = await connection.Invoke<string>("HelloWorld");
-
-            //        Assert.Equal("Hello World!", result);
-            //    }
-            //    finally
-            //    {
-            //        await connection.DisposeAsync();
-            //    }
-            //}
-
             // Arrange
             using (var httpClient = _testServer.CreateClient())
             {
                 string topic = "anyTopic";
+                Action<object> handler = (obj) => { };
                 IPublishSubscribeHubProxy proxy = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
 
                 // Act
                 await proxy.ConnectAsync(httpClient);
-                await proxy.SubscribeAsync(topic);
+                await proxy.SubscribeAsync(topic, handler);
                 await proxy.UnSubscribeAsync(topic);
                 await proxy.DisconectAsync();
 
                 // Assert
             }
         }
+
+        [Fact]
+        public async Task WhenClientSubscribeToTopic_ThenCanRecievedMessages()
+        {
+            // Arrange
+            using (var httpClient = _testServer.CreateClient())
+            {
+                bool messageRecieved = false;
+                string contentRecieved = string.Empty;
+
+                string topic = "anyTopic";
+                Action<object> handler = (obj) => { messageRecieved = true; contentRecieved = (string)obj; };
+                string content = "Hi, how do you do?";
+                IPublishSubscribeHubProxy proxy = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+
+                // Act
+                await proxy.ConnectAsync(httpClient);
+                await proxy.SubscribeAsync(topic, handler);
+                await proxy.SendAsync<string>(topic, content);
+                await proxy.UnSubscribeAsync(topic);
+                await proxy.DisconectAsync();
+
+                // Assert
+                Assert.True(messageRecieved);
+                Assert.Equal(content, contentRecieved);
+            }
+        }
+
 
         public void Dispose()
         {

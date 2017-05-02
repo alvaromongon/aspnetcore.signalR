@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Wtwd.Core.PublishSubscribe.Proxy
@@ -13,7 +14,7 @@ namespace Wtwd.Core.PublishSubscribe.Proxy
 
         Task SendAsync<T>(string topic, T messageContent);
 
-        Task SubscribeAsync(string topic);
+        Task SubscribeAsync(string topic, Action<object> handler);
 
         Task UnSubscribeAsync(string topic);
     }

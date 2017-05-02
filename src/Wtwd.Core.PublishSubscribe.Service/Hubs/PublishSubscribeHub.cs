@@ -19,7 +19,7 @@ namespace Wtwd.Core.PublishSubscribe.Service.Hubs
 
         public async Task SendMessage(Message message)
         {
-            await Clients.Group(message.Topic).InvokeAsync("Publish", message.Content);
+            await Clients.Group(message.Topic).InvokeAsync("Publish", message);
         }
 
         /// <summary>

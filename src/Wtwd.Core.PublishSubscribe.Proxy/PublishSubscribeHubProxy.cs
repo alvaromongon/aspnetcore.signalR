@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.Sockets;
 using Microsoft.Extensions.Logging;
-using Wtwd.Core.PublishSubscribe.Model;
+using Newtonsoft.Json;
 
 namespace Wtwd.Core.PublishSubscribe.Proxy
 {
@@ -19,6 +20,7 @@ namespace Wtwd.Core.PublishSubscribe.Proxy
 
         private readonly HubConnection _hubConnection;
         private readonly CancellationTokenSource _cancellationTokenSource;
+        private readonly ConcurrentDictionary<string, Action<object>> _handlers;
 
         private static string _hubPath = "/PublishSubscribe";
         private static string _methodRecievedName = "Publish";
@@ -31,10 +33,10 @@ namespace Wtwd.Core.PublishSubscribe.Proxy
             _hubUrl = new Uri(serverUrl, _hubPath);
             _logger = logger;
 
-            // http://localhost:5000/hubs
             //var _hubConnection = new HubConnection(new Uri(baseUrl), new JsonNetInvocationAdapter(), loggerFactory);
             _hubConnection = new HubConnection(_hubUrl);
             _cancellationTokenSource = new CancellationTokenSource();
+            _handlers = new ConcurrentDictionary<string, Action<object>>();
         }
 
         public async Task ConnectAsync()
@@ -51,10 +53,10 @@ namespace Wtwd.Core.PublishSubscribe.Proxy
                 _logger.LogInformation("Connected to {0}", _hubUrl);
 
                 // Set up handler
-                _hubConnection.On(_methodRecievedName, new[] { typeof(string) }, a =>
+                _hubConnection.On(_methodRecievedName, new[] { typeof(Model.Message) }, message =>
                 {
-                    var serializedMessage = (string)a[0];
-                    HandleRecievedMessage(serializedMessage);
+                    var recievedMessage = (Model.Message)message[0];
+                    HandleRecievedMessage(recievedMessage);
                 });
             }
             catch (AggregateException aex) when (aex.InnerExceptions.All(e => e is OperationCanceledException))
@@ -70,10 +72,6 @@ namespace Wtwd.Core.PublishSubscribe.Proxy
                 // TODO: Encapsulate in library exception
                 throw ex;
             }
-            finally
-            {
-                await _hubConnection.DisposeAsync();
-            }
         }
 
         public async Task DisconectAsync()
@@ -82,7 +80,10 @@ namespace Wtwd.Core.PublishSubscribe.Proxy
 
             _cancellationTokenSource.Cancel();
 
-            await _hubConnection.DisposeAsync();
+            if (_hubConnection != null)
+            {
+                await _hubConnection.DisposeAsync();
+            }
         }
 
         public async Task SendAsync<T>(string topic, T content)
@@ -92,7 +93,7 @@ namespace Wtwd.Core.PublishSubscribe.Proxy
                 var message = new Model.Message()
                 {
                     Topic = topic,
-                    Content = Newtonsoft.Json.JsonConvert.SerializeObject(content)
+                    Content = JsonConvert.SerializeObject(content)
                 };
 
                 await _hubConnection.Invoke<object>(_methodSendMessageName, _cancellationTokenSource.Token, message);
@@ -103,17 +104,23 @@ namespace Wtwd.Core.PublishSubscribe.Proxy
             catch (OperationCanceledException)
             {
             }
-            finally
+            catch (Exception ex)
             {
-                await _hubConnection.DisposeAsync();
+                _logger.LogError(ex, "Exception trying to send a message to {0}", _hubUrl);
+
+                // TODO: Encapsulate in library exception
+                throw ex;
             }
         }
 
-        public async Task SubscribeAsync(string topic)
+        public async Task SubscribeAsync(string topic, Action<object> handler)
         {
             try
             {
+                // Always perform the action even if the key does not exist to ensure everything is in sync
                 await _hubConnection.Invoke<object>(_methodSubscribeName, _cancellationTokenSource.Token, topic);
+
+                _handlers.AddOrUpdate(topic, handler, (key, value) => { return handler; });
             }
             catch (AggregateException aex) when (aex.InnerExceptions.All(e => e is OperationCanceledException))
             {
@@ -121,17 +128,24 @@ namespace Wtwd.Core.PublishSubscribe.Proxy
             catch (OperationCanceledException)
             {
             }
-            finally
+            catch (Exception ex)
             {
-                await _hubConnection.DisposeAsync();
-            }            
-        }
+                _logger.LogError(ex, "Exception trying to Subscribe on topic {0} to service {1}", topic, _hubUrl);
+
+                // TODO: Encapsulate in library exception
+                throw ex;
+            }
+    }
 
         public async Task UnSubscribeAsync(string topic)
         {
             try
             {
+                // Always perform the action even if the key does not exist to ensure everything is in sync
                 await _hubConnection.Invoke<object>(_methodUnsubscribeName, _cancellationTokenSource.Token, topic);
+
+                Action<object> removedHandler;
+                _handlers.TryRemove(topic, out removedHandler);
             }
             catch (AggregateException aex) when (aex.InnerExceptions.All(e => e is OperationCanceledException))
             {
@@ -139,9 +153,12 @@ namespace Wtwd.Core.PublishSubscribe.Proxy
             catch (OperationCanceledException)
             {
             }
-            finally
+            catch (Exception ex)
             {
-                await _hubConnection.DisposeAsync();
+                _logger.LogError(ex, "Exception trying to Unsubscribe on topic {0} to service {1}", topic, _hubUrl);
+
+                // TODO: Encapsulate in library exception
+                throw ex;
             }
         }
 
@@ -150,9 +167,14 @@ namespace Wtwd.Core.PublishSubscribe.Proxy
             return new HttpClient() { BaseAddress = _hubUrl };
         }
 
-        private void HandleRecievedMessage(string serializedMessage)
+        private void HandleRecievedMessage(Model.Message recievedMessage)
         {
-            _logger.LogInformation("Message Recieved: {0}", serializedMessage);
+            _logger.LogInformation("Message Recieved from topic '{0}', message: {0}", recievedMessage.Topic, recievedMessage.Content);
+
+            if (_handlers.TryGetValue(recievedMessage.Topic, out Action<object> messageHandler))
+            {
+                messageHandler.Invoke(JsonConvert.DeserializeObject(recievedMessage.Content));                
+            }
         }
     }
 }
