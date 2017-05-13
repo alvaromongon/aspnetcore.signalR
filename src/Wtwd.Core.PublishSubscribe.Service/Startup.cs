@@ -14,7 +14,6 @@ namespace Wtwd.Core.PublishSubscribe.Service
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddMvc();
             services.AddSignalR();
         }
 
@@ -26,9 +25,9 @@ namespace Wtwd.Core.PublishSubscribe.Service
         /// <param name="loggerFactory">logger factory</param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            // TODO: Use Serilog abstraction. 
+            // At the moment the abstraction requiere full framework due to the reference to Serilog.Settings.AppSettings library.
             loggerFactory.AddConsole();
-
-            //app.UseMvc();
 
             app.UseSignalR(routes =>
             {

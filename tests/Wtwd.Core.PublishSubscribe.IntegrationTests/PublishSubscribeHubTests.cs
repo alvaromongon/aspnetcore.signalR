@@ -1,21 +1,16 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Wtwd.Core.PublishSubscribe.Proxy;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 using Wtwd.Core.PublishSubscribe.Service.Hubs;
-using Microsoft.AspNetCore.Sockets;
-using Wtwd.Core.PublishSubscribe.Service;
+using Xunit;
 
 namespace Wtwd.Core.PublishSubscribe.IntegrationTests
 {
-    // https://github.com/aspnet/SignalR/blob/dev/test/Microsoft.AspNetCore.SignalR.Client.FunctionalTests/HubConnectionTests.cs
-
     public class PublishSubscribeHubTests : IDisposable
     {
         private readonly TestServer _testServer;
@@ -38,52 +33,195 @@ namespace Wtwd.Core.PublishSubscribe.IntegrationTests
         }
 
         [Fact]
-        public async Task WhenClientConnect_ThenCanSubscribeAndUnSubscribe()
+        public async Task WhenConnectedTwice_ThenInvalidOperationExceptionIsThrown()
         {
-            // Arrange
+            // Arrange  
+            IPublishSubscribeHubProxy client = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+
             using (var httpClient = _testServer.CreateClient())
             {
-                string topic = "anyTopic";
-                Action<object> handler = (obj) => { };
-                IPublishSubscribeHubProxy proxy = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
-
                 // Act
-                await proxy.ConnectAsync(httpClient);
-                await proxy.SubscribeAsync(topic, handler);
-                await proxy.UnSubscribeAsync(topic);
-                await proxy.DisconectAsync();
+                await client.ConnectAsync(httpClient);
+
+                // Assert
+                await Assert.ThrowsAsync<InvalidOperationException>(async () => await client.ConnectAsync(httpClient));
+            }
+        }
+
+        [Fact]
+        public async Task WhenDisconectAndNeverConnectedBefore_ThenItDoesNotFail()
+        {
+            // Arrange  
+            IPublishSubscribeHubProxy client = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+
+            using (var httpClient = _testServer.CreateClient())
+            {
+                // Act
+                await client.DisconnectAsync();
 
                 // Assert
             }
         }
 
         [Fact]
-        public async Task WhenClientSubscribeToTopic_ThenCanRecievedMessages()
+        public async Task WhenConnectedAndDisconectTwice_ThenItDoesNotFail()
         {
-            // Arrange
+            // Arrange  
+            IPublishSubscribeHubProxy client = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+
             using (var httpClient = _testServer.CreateClient())
             {
-                bool messageRecieved = false;
-                string contentRecieved = string.Empty;
-
-                string topic = "anyTopic";
-                Action<object> handler = (obj) => { messageRecieved = true; contentRecieved = (string)obj; };
-                string content = "Hi, how do you do?";
-                IPublishSubscribeHubProxy proxy = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
-
                 // Act
-                await proxy.ConnectAsync(httpClient);
-                await proxy.SubscribeAsync(topic, handler);
-                await proxy.SendAsync<string>(topic, content);
-                await proxy.UnSubscribeAsync(topic);
-                await proxy.DisconectAsync();
+                await client.ConnectAsync(httpClient);
+                await client.DisconnectAsync();
+                await client.DisconnectAsync();
 
                 // Assert
-                Assert.True(messageRecieved);
-                Assert.Equal(content, contentRecieved);
             }
         }
 
+        [Fact]
+        public async Task WhenClientSubscribeToTopic_ThenCanRecieveSimpleTypeMessages()
+        {
+            // Arrange
+            string topic = "anyTopic";
+            string content = "Hi, how do you do?";
+
+            bool messageReceived = false;
+            string contentReceived = string.Empty;
+
+            Action<string> handler = (param) => { messageReceived = true; contentReceived = param; };
+
+            IPublishSubscribeHubProxy client = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+
+            using (var httpClient = _testServer.CreateClient())
+            {
+                // Act
+                await client.ConnectAsync(httpClient);
+                await client.SubscribeAsync(topic, handler);
+                await client.SendAsync(topic, content);
+
+                // Not good but needed...
+                await Task.Delay(50);
+
+                await client.UnSubscribeAsync(topic);
+                await client.DisconnectAsync();
+
+                // Assert
+                Assert.True(messageReceived);
+                Assert.Equal(content, contentReceived);
+            }
+        }
+
+        [Fact]
+        public async Task WhenClientSubscribeToTopic_ThenCanRecieveComplexTypeMessages()
+        {
+            // Arrange
+            string topic = "anyTopic";
+            DateTime content = DateTime.MaxValue;
+
+            bool messageReceived = false;
+            DateTime contentReceived = DateTime.MinValue;
+
+            Action<DateTime> handler = (param) => { messageReceived = true; contentReceived = param; };
+
+            IPublishSubscribeHubProxy client = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+
+            using (var httpClient = _testServer.CreateClient())
+            {
+                // Act
+                await client.ConnectAsync(httpClient);
+                await client.SubscribeAsync(topic, handler);
+                await client.SendAsync(topic, content);
+
+                // Not good but needed...
+                await Task.Delay(50);
+
+                await client.UnSubscribeAsync(topic);
+                await client.DisconnectAsync();
+
+                // Assert
+                Assert.True(messageReceived);
+                Assert.Equal(content, contentReceived);
+            }
+        }
+
+        [Fact]
+        public async Task WhenClientSubscribeAnsUnsubscribeToTopic_ThenDoNotRecieveMessages()
+        {
+            // Arrange
+            string topic = "anyTopic";
+            string content = "Hi, how do you do?";
+
+            bool messageReceived = false;
+            string contentReceived = string.Empty;
+
+            Action<string> handler = (obj) => { messageReceived = true; contentReceived = obj; };
+
+            IPublishSubscribeHubProxy client = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+
+            using (var httpClient = _testServer.CreateClient())
+            {
+                // Act
+                await client.ConnectAsync(httpClient);
+                await client.SubscribeAsync(topic, handler);
+
+                // Not good but needed...
+                await Task.Delay(50);
+
+                await client.UnSubscribeAsync(topic);
+                await client.SendAsync(topic, content);
+                await client.DisconnectAsync();
+
+                // Assert
+                Assert.False(messageReceived);
+                Assert.Equal(string.Empty, contentReceived);
+            }
+        }
+
+        [Fact]
+        public async Task WhenTwoClientsSubscribeExpectingDifferentTypes_HandlerWithWrongTypeIsNotExecuted()
+        {
+            // Arrange
+            string topic = "anyTopic";
+            TimeSpan content_1 = new TimeSpan(12345);
+
+            var handler_1_executed = false;
+            var handler_2_executed = false;
+
+            Action<TimeSpan> handler_1 = (obj) => { handler_1_executed = true; };
+            Action<int> handler_2 = (obj) => { handler_1_executed = true; };
+
+            IPublishSubscribeHubProxy client_1 = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+            IPublishSubscribeHubProxy client_2 = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+
+            using (var httpClient_1 = _testServer.CreateClient())
+            {
+                await client_1.ConnectAsync(httpClient_1);
+                await client_1.SubscribeAsync(topic, handler_1);
+
+                using (var httpClient_2 = _testServer.CreateClient())
+                {
+                    await client_2.ConnectAsync(httpClient_2);
+                    await client_2.SubscribeAsync(topic, handler_2);
+
+                    await client_1.SendAsync(topic, content_1);
+
+                    // Not good but needed...
+                    await Task.Delay(50);
+
+                    await client_2.UnSubscribeAsync(topic);
+                    await client_2.DisconnectAsync();
+                }
+
+                await client_1.UnSubscribeAsync(topic);
+                await client_1.DisconnectAsync();
+
+                // Assert
+                Assert.True(handler_1_executed);
+                Assert.False(handler_2_executed);
+            }
+        }
 
         public void Dispose()
         {

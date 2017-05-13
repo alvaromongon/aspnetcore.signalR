@@ -1,16 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wtwd.PublishSubscribe.Model", "src\Wtwd.PublishSubscribe.Model\Wtwd.PublishSubscribe.Model.csproj", "{B8A2A071-D18A-46A9-A999-F0934A2081B9}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wtwd.PublishSubscribe.Service", "src\Wtwd.PublishSubscribe.Service\Wtwd.PublishSubscribe.Service.csproj", "{171B68F4-4346-42A9-95CA-8E2221E30A3C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wtwd.PublishSubscribe.Proxy", "src\Wtwd.PublishSubscribe.Proxy\Wtwd.PublishSubscribe.Proxy.csproj", "{8252FF85-E76E-4D06-8CB1-A4E0ADD7EE27}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wtwd.PublishSubscribe.IntegrationTests", "tests\Wtwd.PublishSubscribe.IntegrationTests\Wtwd.PublishSubscribe.IntegrationTests.csproj", "{A38481C5-5840-4F7F-AEA7-7362B3F8D764}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wtwd.Core.PublishSubscribe.Service", "src\Wtwd.Core.PublishSubscribe.Service\Wtwd.Core.PublishSubscribe.Service.csproj", "{C707B8D6-A9A5-40DE-9B47-9E10CBEFB3EC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wtwd.Core.PublishSubscribe.Model", "src\Wtwd.Core.PublishSubscribe.Model\Wtwd.Core.PublishSubscribe.Model.csproj", "{C3363985-A238-4E9C-8E88-D21666B8676A}"
@@ -19,28 +11,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wtwd.Core.PublishSubscribe.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wtwd.Core.PublishSubscribe.IntegrationTests", "tests\Wtwd.Core.PublishSubscribe.IntegrationTests\Wtwd.Core.PublishSubscribe.IntegrationTests.csproj", "{031E588C-99E9-4A77-BF5E-EE50060828C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wtwd.Core.PublishSubscribe.UnitTests", "tests\Wtwd.Core.PublishSubscribe.UnitTests\Wtwd.Core.PublishSubscribe.UnitTests.csproj", "{CBAFE1E4-2652-4CB2-A8A5-74EC4642251E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B8A2A071-D18A-46A9-A999-F0934A2081B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B8A2A071-D18A-46A9-A999-F0934A2081B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B8A2A071-D18A-46A9-A999-F0934A2081B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B8A2A071-D18A-46A9-A999-F0934A2081B9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{171B68F4-4346-42A9-95CA-8E2221E30A3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{171B68F4-4346-42A9-95CA-8E2221E30A3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{171B68F4-4346-42A9-95CA-8E2221E30A3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{171B68F4-4346-42A9-95CA-8E2221E30A3C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8252FF85-E76E-4D06-8CB1-A4E0ADD7EE27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8252FF85-E76E-4D06-8CB1-A4E0ADD7EE27}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8252FF85-E76E-4D06-8CB1-A4E0ADD7EE27}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8252FF85-E76E-4D06-8CB1-A4E0ADD7EE27}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A38481C5-5840-4F7F-AEA7-7362B3F8D764}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A38481C5-5840-4F7F-AEA7-7362B3F8D764}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A38481C5-5840-4F7F-AEA7-7362B3F8D764}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A38481C5-5840-4F7F-AEA7-7362B3F8D764}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C707B8D6-A9A5-40DE-9B47-9E10CBEFB3EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C707B8D6-A9A5-40DE-9B47-9E10CBEFB3EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C707B8D6-A9A5-40DE-9B47-9E10CBEFB3EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -57,6 +35,10 @@ Global
 		{031E588C-99E9-4A77-BF5E-EE50060828C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{031E588C-99E9-4A77-BF5E-EE50060828C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{031E588C-99E9-4A77-BF5E-EE50060828C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBAFE1E4-2652-4CB2-A8A5-74EC4642251E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBAFE1E4-2652-4CB2-A8A5-74EC4642251E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBAFE1E4-2652-4CB2-A8A5-74EC4642251E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBAFE1E4-2652-4CB2-A8A5-74EC4642251E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
