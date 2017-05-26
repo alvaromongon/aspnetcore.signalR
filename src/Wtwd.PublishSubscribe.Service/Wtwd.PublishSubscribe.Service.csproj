@@ -15,7 +15,7 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.0-preview2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Wtwd.Core.PublishSubscribe.Model\Wtwd.Core.PublishSubscribe.Model.csproj" />
+    <ProjectReference Include="..\Wtwd.PublishSubscribe.Model\Wtwd.PublishSubscribe.Model.csproj" />
   </ItemGroup>
 
 </Project>

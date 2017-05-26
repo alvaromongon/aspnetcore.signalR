@@ -2,9 +2,9 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Wtwd.Core.PublishSubscribe.Proxy
+namespace Wtwd.PublishSubscribe.Client
 {
-    public interface IPublishSubscribeHubProxy
+    public interface IPublishSubscribeHubClient
     {
         /// <summary>
         /// Connect method

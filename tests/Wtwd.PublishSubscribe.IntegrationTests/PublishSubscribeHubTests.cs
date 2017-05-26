@@ -5,11 +5,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Wtwd.Core.PublishSubscribe.Proxy;
-using Wtwd.Core.PublishSubscribe.Service.Hubs;
+using Wtwd.PublishSubscribe.Client;
+using Wtwd.PublishSubscribe.Service;
+using Wtwd.PublishSubscribe.Service.Hubs;
 using Xunit;
 
-namespace Wtwd.Core.PublishSubscribe.IntegrationTests
+namespace Wtwd.PublishSubscribe.IntegrationTests
 {
     public class PublishSubscribeHubTests : IDisposable
     {
@@ -17,18 +18,18 @@ namespace Wtwd.Core.PublishSubscribe.IntegrationTests
 
         public PublishSubscribeHubTests()
         {
-            var webHostBuilder = new WebHostBuilder().
-                ConfigureServices(services =>
-                {
-                    services.AddSignalR();
-                })
-                .Configure(app =>
-                {
-                    app.UseSignalR(routes =>
-                    {
-                        routes.MapHub<PublishSubscribeHub>("/PublishSubscribe");
-                    });
-                });
+            var webHostBuilder = new WebHostBuilder().UseStartup(typeof(Startup));
+                //ConfigureServices(services =>
+                //{
+                //    services.AddSignalR();
+                //})
+                //.Configure(app =>
+                //{
+                //    app.UseSignalR(routes =>
+                //    {
+                //        routes.MapHub<PublishSubscribeHub>("/PublishSubscribe");
+                //    });
+                //});
             _testServer = new TestServer(webHostBuilder);
         }
 
@@ -36,7 +37,7 @@ namespace Wtwd.Core.PublishSubscribe.IntegrationTests
         public async Task WhenConnectedTwice_ThenInvalidOperationExceptionIsThrown()
         {
             // Arrange  
-            IPublishSubscribeHubProxy client = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+            IPublishSubscribeHubClient client = new PublishSubscribeHubClient(new Uri("http://test/"), CreateLogger());
 
             using (var httpClient = _testServer.CreateClient())
             {
@@ -52,7 +53,7 @@ namespace Wtwd.Core.PublishSubscribe.IntegrationTests
         public async Task WhenDisconectAndNeverConnectedBefore_ThenItDoesNotFail()
         {
             // Arrange  
-            IPublishSubscribeHubProxy client = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+            IPublishSubscribeHubClient client = new PublishSubscribeHubClient(new Uri("http://test/"), CreateLogger());
 
             using (var httpClient = _testServer.CreateClient())
             {
@@ -67,7 +68,7 @@ namespace Wtwd.Core.PublishSubscribe.IntegrationTests
         public async Task WhenConnectedAndDisconectTwice_ThenItDoesNotFail()
         {
             // Arrange  
-            IPublishSubscribeHubProxy client = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+            IPublishSubscribeHubClient client = new PublishSubscribeHubClient(new Uri("http://test/"), CreateLogger());
 
             using (var httpClient = _testServer.CreateClient())
             {
@@ -92,7 +93,7 @@ namespace Wtwd.Core.PublishSubscribe.IntegrationTests
 
             Action<string> handler = (param) => { messageReceived = true; contentReceived = param; };
 
-            IPublishSubscribeHubProxy client = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+            IPublishSubscribeHubClient client = new PublishSubscribeHubClient(new Uri("http://test/"), CreateLogger());
 
             using (var httpClient = _testServer.CreateClient())
             {
@@ -125,7 +126,7 @@ namespace Wtwd.Core.PublishSubscribe.IntegrationTests
 
             Action<DateTime> handler = (param) => { messageReceived = true; contentReceived = param; };
 
-            IPublishSubscribeHubProxy client = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+            IPublishSubscribeHubClient client = new PublishSubscribeHubClient(new Uri("http://test/"), CreateLogger());
 
             using (var httpClient = _testServer.CreateClient())
             {
@@ -158,7 +159,7 @@ namespace Wtwd.Core.PublishSubscribe.IntegrationTests
 
             Action<string> handler = (obj) => { messageReceived = true; contentReceived = obj; };
 
-            IPublishSubscribeHubProxy client = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+            IPublishSubscribeHubClient client = new PublishSubscribeHubClient(new Uri("http://test/"), CreateLogger());
 
             using (var httpClient = _testServer.CreateClient())
             {
@@ -192,8 +193,8 @@ namespace Wtwd.Core.PublishSubscribe.IntegrationTests
             Action<TimeSpan> handler_1 = (obj) => { handler_1_executed = true; };
             Action<int> handler_2 = (obj) => { handler_1_executed = true; };
 
-            IPublishSubscribeHubProxy client_1 = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
-            IPublishSubscribeHubProxy client_2 = new PublishSubscribeHubProxy(new Uri("http://test/"), CreateLogger());
+            IPublishSubscribeHubClient client_1 = new PublishSubscribeHubClient(new Uri("http://test/"), CreateLogger());
+            IPublishSubscribeHubClient client_2 = new PublishSubscribeHubClient(new Uri("http://test/"), CreateLogger());
 
             using (var httpClient_1 = _testServer.CreateClient())
             {
@@ -231,12 +232,12 @@ namespace Wtwd.Core.PublishSubscribe.IntegrationTests
             }
         }
 
-        private static ILogger<PublishSubscribeHubProxy> CreateLogger()
+        private static ILogger<PublishSubscribeHubClient> CreateLogger()
         {
             var loggerFactory = new LoggerFactory();
             loggerFactory.AddConsole(LogLevel.Trace);
 
-            var logger = loggerFactory.CreateLogger<PublishSubscribeHubProxy>();
+            var logger = loggerFactory.CreateLogger<PublishSubscribeHubClient>();
 
             return logger;
         }

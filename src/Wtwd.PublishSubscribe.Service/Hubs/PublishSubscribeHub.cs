@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
-using Wtwd.Core.PublishSubscribe.Model;
+using Wtwd.PublishSubscribe.Model;
 
-namespace Wtwd.Core.PublishSubscribe.Service.Hubs
+namespace Wtwd.PublishSubscribe.Service.Hubs
 {
     /// <summary>
     /// Publish subscribe hub

@@ -8,15 +8,15 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.0.0-preview2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170523-01" />
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Wtwd.Core.PublishSubscribe.Model\Wtwd.Core.PublishSubscribe.Model.csproj" />
-    <ProjectReference Include="..\..\src\Wtwd.Core.PublishSubscribe.Proxy\Wtwd.Core.PublishSubscribe.Proxy.csproj" />
-    <ProjectReference Include="..\..\src\Wtwd.Core.PublishSubscribe.Service\Wtwd.Core.PublishSubscribe.Service.csproj" />
+    <ProjectReference Include="..\..\src\Wtwd.PublishSubscribe.Client\Wtwd.PublishSubscribe.Client.csproj" />
+    <ProjectReference Include="..\..\src\Wtwd.PublishSubscribe.Model\Wtwd.PublishSubscribe.Model.csproj" />
+    <ProjectReference Include="..\..\src\Wtwd.PublishSubscribe.Service\Wtwd.PublishSubscribe.Service.csproj" />
   </ItemGroup>
 
   <ItemGroup>

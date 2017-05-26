@@ -1,4 +1,4 @@
-﻿namespace Wtwd.Core.PublishSubscribe.Model
+﻿namespace Wtwd.PublishSubscribe.Model
 {
     public class Message
     {

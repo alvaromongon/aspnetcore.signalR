@@ -9,19 +9,19 @@ using Microsoft.AspNetCore.Sockets;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace Wtwd.Core.PublishSubscribe.Proxy
+namespace Wtwd.PublishSubscribe.Client
 {
     /// <summary>
     /// Proxy class for the Pusblish Subscribe hub
     /// https://github.com/aspnet/SignalR
     /// </summary>
-    public class PublishSubscribeHubProxy : IPublishSubscribeHubProxy
+    public class PublishSubscribeHubClient : IPublishSubscribeHubClient
     {
         private readonly Uri _serviceUrl;
 
         // TODO: Use Serilog abstraction. 
         // At the moment the abstraction requiere full framework due to the reference to Serilog.Settings.AppSettings library.
-        private readonly ILogger<PublishSubscribeHubProxy> _logger;
+        private readonly ILogger<PublishSubscribeHubClient> _logger;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly ConcurrentDictionary<string, Tuple<Type, Action<object>>> _handlers;
 
@@ -39,7 +39,7 @@ namespace Wtwd.Core.PublishSubscribe.Proxy
         /// </summary>        
         /// <param name="serviceUrl">Publish Subscriber service url</param>
         /// <param name="logger">logger</param>
-        public PublishSubscribeHubProxy(Uri serviceUrl, ILogger<PublishSubscribeHubProxy> logger)
+        public PublishSubscribeHubClient(Uri serviceUrl, ILogger<PublishSubscribeHubClient> logger)
         {
             _serviceUrl = serviceUrl;
             _logger = logger;
@@ -72,7 +72,7 @@ namespace Wtwd.Core.PublishSubscribe.Proxy
             {
                 httpClient = httpClient ?? BuildHttpClient();
 
-                // TODO hardcoded transport type, should be defined by the proxy client
+                // TODO hardcoded transport type, should be defined by the proxy client?
                 await _hubConnection.StartAsync(TransportType.LongPolling, httpClient);
 
                 // TODO: Handle Closed and Connected (Do we need it?) events.
@@ -256,14 +256,14 @@ namespace Wtwd.Core.PublishSubscribe.Proxy
                 _logger.LogError(ex, "Exception trying to deserialize received content into handle method parameter on topic {0} from service {1}", receivedMessage.Topic, _hubUrl);
 
                 // TODO: Log and throw library expecific exception for known exception types, other, log and throw
-                throw;
+                //throw; Cannot do anything except log it
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unknown exception trying to handle a received message on topic {0} from service {1}", receivedMessage.Topic, _hubUrl);
 
                 // TODO: Log and throw library expecific exception for known exception types, other, log and throw
-                throw;
+                //throw; Cannot do anything except log it
             }
         }
     }

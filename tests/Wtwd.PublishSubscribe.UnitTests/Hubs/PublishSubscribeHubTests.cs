@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Sockets;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Wtwd.Core.PublishSubscribe.Service.Hubs;
+using Wtwd.PublishSubscribe.Service.Hubs;
 using Xunit;
 
-namespace Wtwd.Core.PublishSubscribe.UnitTests.Hubs
+namespace Wtwd.PublishSubscribe.UnitTests.Hubs
 {
     public class PublishSubscribeHubTests
     {

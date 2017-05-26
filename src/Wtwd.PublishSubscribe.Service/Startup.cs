@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Wtwd.Core.PublishSubscribe.Service.Hubs;
+using Wtwd.PublishSubscribe.Service.Hubs;
 
-namespace Wtwd.Core.PublishSubscribe.Service
+namespace Wtwd.PublishSubscribe.Service
 {
     public class Startup
     {

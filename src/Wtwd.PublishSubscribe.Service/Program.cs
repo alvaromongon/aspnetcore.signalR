@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Wtwd.Core.PublishSubscribe.Service
+namespace Wtwd.PublishSubscribe.Service
 {
     public class Program
     {
